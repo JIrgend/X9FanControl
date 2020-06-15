@@ -9,7 +9,7 @@
  *
  * Relational approach g(x) = e^((x - 17.33793493) / 15) + 7.65
  *
- * Copyright (c) Fabian Druschke 2020 and Johannes Goßmann 2020
+ * Copyright (c) Fabian Druschke, Johannes Goßmann 2020 
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -143,17 +143,10 @@ int main(int argc, char *argv[]) {
     if (strcmp(argv[1], "--help") == 0) {
 
       printf("Execute: %s ... [INTERVAL] ... [OPTION] \n\n", argv[0]);
-      printf(" --table, prints scaled fan speed information");
-      printf("Temperature control for X9 based Supermicro boards.\n");
-      printf("Using Bang�^`^sbang control with hysteresis and f=1/s\n");
-      printf("�^tx = 2*1K\n");
-      printf("t=1s\n");
-      printf("PT1 first order lag element.\n");
-      printf("\n");
-      printf("Relational approach g(x) = e^((x - 17.33793493) / 15) + 7.65\n");
-      printf("\n");
-      printf("Copyright (c) Fabian Druschke 2020\n");
-      printf("All rights reserved.\n");
+      printf(" --table, prints scaled fan speed information\n Temperature control for X9 based Supermicro boards.\n");
+      printf("Using Bang-bang control with hysteresis and f=1/s\n Δtx = 2*1K\n t=1s\n PT1 first order lag element.\n\n");
+      printf("Relational approach g(x) = e^((x - 17.33793493) / 15) + 7.65\n\n");
+      printf("Copyright (c) Fabian Druschke, Johannes Goßmann 2020\nAll rights reserved.\n");
       return 0;
     }
     if (strcmp(argv[1], "--table") == 0) {
