@@ -1,5 +1,3 @@
-
-
 /*
  * chairman/temp.c
  *
@@ -11,7 +9,7 @@
  *
  * Relational approach g(x) = e^((x - 17.33793493) / 15) + 7.65
  *
- * Copyright (c) Fabian Druschke 2020
+ * Copyright (c) Fabian Druschke 2020 and Johannes Goßmann 2020
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -50,7 +48,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#define MAX_VALUES 24
+#define MAX_VALUES 24 //no of cores
 // Fan specific data, assuming the default Supermicro fan
 #define MAX_FANSPEED 12000
 #define MAX_PWM_VAL 255
@@ -63,74 +61,33 @@ int interval;      // Our interval to repeat execution every x seconds
 int debug;
 
 void printfVals() {
-  for (float i = 0.0; i <= 100.0; i++) // From 0 to 100 degrees
-  {
+  for (float i = 0.0; i <= 100.0; i++) {// From 0 to 100 degrees
     float pwm_frequency = (exp((i - 17.33793493) / 15.0) + 7.65);
-    printf("Hunk for %0.f °C: %f = %f 1/60s\n", i, pwm_frequency,
-           (pwm_frequency * FAN_DIFF));
+    printf("Hunk for %0.f °C: %f = %f 1/60s\n", i, pwm_frequency,(pwm_frequency * FAN_DIFF));
   }
 }
 
 float hysteresisControl(int temp) {
-  // g(x) = e^((x - 17.33793493) / 15) + 7.65
   float pwm_frequency;
   return pwm_frequency = exp((temp - 17.33793493) / 15) + 7.65;
 }
 
 int interpolateFanSpeed(float pwm_frequency) {
-  return tachoControl = (int)(pwm_frequency < 0 ? (pwm_frequency - 0.5)
-                                                : (pwm_frequency + 0.5));
+  return tachoControl = (int)(pwm_frequency < 0 ? (pwm_frequency - 0.5) : (pwm_frequency + 0.5));
 }
 
-void swap(int *keys, int n, int m) {
-  int tmp = keys[n];
-  keys[n] = keys[m];
-  keys[m] = tmp;
+//linear search, max will be at highest addr in array
+void max(int *keys, int n_keys) { 
+int max,i;
+	for(i,i<n_keys,i++) 
+	if (keys[i] > max) 
+		max = keys[i]
+	keys[n_keys]=max;
 }
 
-void __heapsort(int *keys, int n_keys) {
-  keys -= 1;
 
-  for (int last = 1; last <= n_keys; ++last) {
-
-    int n = last;
-    while (n > 1) {
-      int parent = n / 2;
-      if (keys[parent] > keys[n])
-        break;
-
-      swap(keys, parent, n);
-      n = parent;
-    }
-  }
-  for (int last = n_keys - 1; last >= 1; --last) {
-
-    swap(keys, 1, last + 1);
-    int n = 1;
-    while (1) {
-      int max = n;
-      int left = n * 2;
-      int right = left + 1;
-
-      if (left <= last && keys[left] > keys[max])
-        max = left;
-      if (right <= last && keys[right] > keys[max])
-        max = right;
-
-      if (n == max)
-        break;
-
-      swap(keys, max, n);
-      n = max;
-    }
-  }
-}
-
-void setFanSpeed()
-
-{
-  // When there is no interval specified.
-  FILE *fp; // Our file handler
+void setFanSpeed() {
+  FILE *fp; //file handler
   char path[1035];
 
   // Open the command for reading.
@@ -148,33 +105,29 @@ void setFanSpeed()
     char discard[sizeof(path)];
     sscanf(path, "%s %i", &discard[i], &a[i]);
     free(discardChar);
-
     i++;
   }
-  int n_a = sizeof(a) / sizeof(int);
-  __heapsort(a, n_a);
+
+  max(a, sizeof(a) / sizeof(int));
+  
   for (int k = sizeof(a); k > 0; k--) {
     if (a[k] > 0) {
       int max = a[k];
       int targetFanSpeed = interpolateFanSpeed(hysteresisControl(max));
       unsigned char buffer[32];
-      sprintf(buffer, "ipmitool raw 0x30 0x91 0x5A 0x3 0x10 0x%x",
-              targetFanSpeed); // Issued command
+      sprintf(buffer, "ipmitool raw 0x30 0x91 0x5A 0x3 0x10 0x%x", targetFanSpeed); // Issued command
       system(buffer);
-      sprintf(buffer, "ipmitool raw 0x30 0x91 0x5A 0x3 0x11 0x%x",
-              targetFanSpeed); // Issued command
+      sprintf(buffer, "ipmitool raw 0x30 0x91 0x5A 0x3 0x11 0x%x", targetFanSpeed); // Issued command
       system(buffer);
       if (debug == 1) {
         printf("Highest temp: %d\n", a[k]);
         float realFanSpeed = (targetFanSpeed * FAN_DIFF);
-        printf("Target fan speed: 0x%x = %f 1/60s\n\n", targetFanSpeed,
-               realFanSpeed);
+        printf("Target fan speed: 0x%x = %f 1/60s\n\n", targetFanSpeed, realFanSpeed);
       }
       break;
     }
-  }
-  // Close file handler
-  pclose(fp);
+  } 
+  pclose(fp); // Close file handler
 }
 
 int main(int argc, char *argv[]) {
@@ -214,6 +167,7 @@ int main(int argc, char *argv[]) {
       return 0;
     }
   }
+  
   if ((argc == 2) || (argc == 3 && strcmp(argv[2], "--debug") == 0)) {
     // Check if a valid interval has been entered
     if (strcmp(argv[2], "--debug") == 0) {
@@ -233,15 +187,11 @@ int main(int argc, char *argv[]) {
     } else {
       // No error
       interval = conv;
-      printf("Hysteresis: %d seconds. This program will continue until being "
-             "interrupted.\n",
-             interval);
-
+      printf("Hysteresis: %d seconds. This program will continue until being interrupted.\n", interval);
       // Block
     LOOP:
-
       setFanSpeed();
-      sleep(1);
+      sleep(interval);
       goto LOOP;
     }
   }
