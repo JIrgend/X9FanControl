@@ -38,7 +38,6 @@
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
  */
 
 #include <errno.h>
@@ -48,10 +47,9 @@
 #include <string.h>
 #include <unistd.h>
 
-#define MAX_VALUES 24 //no of cores
-// Fan specific data, assuming the default Supermicro fan
-#define MAX_FANSPEED 12000
-#define MAX_PWM_VAL 255
+#define MAX_VALUES 24 //no. of cores
+#define MAX_FANSPEED 12000 // Fan specific data, assuming the default Supermicro fan
+#define MAX_PWM_VAL 255 
 #define FAN_DIFF MAX_FANSPEED / MAX_PWM_VAL
 #define INT_MIN 1 // Minimum hysteresis time in seconds.
 
@@ -60,8 +58,9 @@ int a[MAX_VALUES]; // Max amount of sensors we want to read in
 int interval;      // Our interval to repeat execution every x seconds
 int debug;
 
+//debug mode
 void printfVals() {
-  for (float i = 0.0; i <= 100.0; i++) {// From 0 to 100 degrees
+  for (float i = 0.0; i <= 100.0; i++) { // From 0 to 100 degrees
     float pwm_frequency = (exp((i - 17.33793493) / 15.0) + 7.65);
     printf("Hunk for %0.f °C: %f = %f 1/60s\n", i, pwm_frequency,(pwm_frequency * FAN_DIFF));
   }
@@ -79,9 +78,9 @@ int interpolateFanSpeed(float pwm_frequency) {
 //linear search, max will be at highest addr in array
 void max(int *keys, int n_keys) { 
 int max,i;
-	for(i,i<n_keys,i++) 
+	for(i;i<n_keys;i++) 
 	if (keys[i] > max) 
-		max = keys[i]
+		max = keys[i];
 	keys[n_keys]=max;
 }
 
